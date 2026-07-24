@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+/* Registering custom colors */
+@theme {
+  --color-brand-primary: #0F0E47;
+  --color-brand-secondary: #272757;
+  --color-brand-light: #505081;
+  --color-brand-smooth: #8686AC;
+
+  --font-display: "Orbitron", sans-serif;
+  --font-body: "Rajdhani", sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: #000;
+  color: #fff;
+}
