@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
@@ -7,6 +8,9 @@ gsap.registerPlugin(ScrollTrigger);
 
 const AccessPreview = () => {
   const containerRef = useRef();
+  const navigate = useNavigate();
+
+  const MAPS_URL = 'https://www.google.com/maps?q=26.921744744859325,94.75445625678603';
 
   useGSAP(() => {
     // Animate the left/top triangle sliding in
@@ -67,7 +71,10 @@ const AccessPreview = () => {
               </div>
             </div>
             
-            <button className="mt-8 md:mt-12 px-8 py-3 md:px-10 md:py-4 border border-white/20 text-white font-display text-[10px] md:text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300">
+            <button
+              onClick={() => navigate('/access')}
+              className="mt-8 md:mt-12 px-8 py-3 md:px-10 md:py-4 border border-white/20 text-white font-display text-[10px] md:text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 cursor-pointer"
+            >
               View Pricing
             </button>
           </div>
@@ -99,7 +106,10 @@ const AccessPreview = () => {
               </div>
             </div>
 
-            <button className="mt-8 md:mt-12 px-8 py-3 md:px-10 md:py-4 border border-black/20 text-black font-display text-[10px] md:text-xs uppercase tracking-widest hover:bg-black hover:text-white transition-all duration-300">
+            <button
+              onClick={() => window.open(MAPS_URL, '_blank', 'noopener,noreferrer')}
+              className="mt-8 md:mt-12 px-8 py-3 md:px-10 md:py-4 border border-black/20 text-black font-display text-[10px] md:text-xs uppercase tracking-widest hover:bg-black hover:text-white transition-all duration-300 cursor-pointer"
+            >
               Get Directions
             </button>
           </div>

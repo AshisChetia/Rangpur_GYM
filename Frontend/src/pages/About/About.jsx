@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
@@ -11,6 +11,13 @@ gsap.registerPlugin(ScrollTrigger);
 
 const About = () => {
   const containerRef = useRef();
+
+  // Kill stale ScrollTrigger instances on unmount
+  useEffect(() => {
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+    };
+  }, []);
 
   return (
     <div ref={containerRef} className="w-full bg-[#050505]">

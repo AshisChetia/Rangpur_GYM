@@ -1,9 +1,11 @@
 import React, { useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 
 const HeroSection = () => {
   const heroRef = useRef();
+  const navigate = useNavigate();
   
   useGSAP(() => {
     // Stagger animation for main content
@@ -28,7 +30,7 @@ const HeroSection = () => {
   }, { scope: heroRef });
 
   return (
-    <div ref={heroRef} className="relative w-full h-full overflow-hidden">
+    <div ref={heroRef} className="relative w-full h-full">
       
       {/* =========================================
           FUTURISTIC HUD ELEMENTS (CORNERS & SIDES)
@@ -82,12 +84,18 @@ const HeroSection = () => {
           Experience premium fitness in Simaluguri, Ramu Gaon with state-of-the-art equipment, certified trainers, and a highly motivating atmosphere tailored for your goals.
         </p>
         
-        <div className="flex gap-4">
-          <button className="px-8 py-3 bg-[var(--color-brand-primary)] text-white text-sm font-display tracking-widest uppercase hover:scale-105 transition-transform cursor-pointer shadow-[0_0_15px_var(--color-brand-primary)] border border-transparent">
-            Join Now
+        <div className="flex flex-wrap gap-4 justify-center">
+          <button
+            onClick={() => navigate('/access')}
+            className="px-8 py-3 bg-[var(--color-brand-primary)] text-white text-sm font-display tracking-widest uppercase hover:scale-105 transition-transform cursor-pointer shadow-[0_0_15px_var(--color-brand-primary)] border border-transparent"
+          >
+            View Membership Plans
           </button>
-          <button className="px-8 py-3 bg-transparent border border-white/30 text-white text-sm font-display tracking-widest uppercase hover:bg-white hover:text-black transition-colors cursor-pointer">
-            Free Trial
+          <button
+            onClick={() => navigate('/services')}
+            className="px-8 py-3 bg-transparent border border-white/30 text-white text-sm font-display tracking-widest uppercase hover:bg-white hover:text-black transition-colors cursor-pointer"
+          >
+            Explore Services
           </button>
         </div>
 

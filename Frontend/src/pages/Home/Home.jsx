@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useEffect } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
@@ -11,48 +11,72 @@ import AccessPreview from './AccessPreview'
 gsap.registerPlugin(ScrollTrigger);
 
 const Home = () => {
-  const heroRef = useRef();
+  const heroInnerRef = useRef();   // Animates the INNER content, NOT the wrapper div
   const aboutRef = useRef();
   const containerRef = useRef();
 
+  // ─── FIX 1: Kill ALL stale ScrollTrigger instances on unmount ──────────────
+  // When the user navigates away from Home and comes back, old ScrollTrigger
+  // instances from other pages corrupt scroll calculations. Killing them on
+  // cleanup guarantees a clean slate on every visit.
+  useEffect(() => {
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+    };
+  }, []);
+
   useGSAP(() => {
-    // Force scroll to top immediately before GSAP calculates anything
+    // Force scroll to top before GSAP calculates positions
     window.scrollTo(0, 0);
     ScrollTrigger.clearScrollMemory("manual");
 
-    // Parallax fade for Hero
-    gsap.to(heroRef.current, {
-      yPercent: -50,
-      opacity: 0,
-      ease: "power1.inOut",
-      scrollTrigger: {
-        trigger: heroRef.current,
-        start: "top top",
-        end: "bottom top",
-        scrub: true,
-      }
-    });
-
-    // Parallax fade in for About
-    gsap.fromTo(aboutRef.current,
-      { yPercent: 30, opacity: 0 },
-      {
-        yPercent: 0,
-        opacity: 1,
+    // ─── FIX 2: Animate the INNER content div, NOT the heroRef wrapper ────────
+    // The original code animated heroRef.current (the `h-[100dvh]` wrapper) with
+    // yPercent:-50. GSAP achieves this by applying a CSS transform to that element.
+    // Any element with a CSS transform creates a new stacking context, which causes
+    // ALL `position: fixed` children (including the navbar) to be positioned
+    // relative to THAT element instead of the viewport — breaking the navbar on mobile.
+    //
+    // Solution: we animate heroInnerRef (a child div) so the transform is applied
+    // only to the visual content, never to a layout/stacking ancestor.
+    if (heroInnerRef.current) {
+      gsap.to(heroInnerRef.current, {
+        yPercent: -20,
+        opacity: 0,
         ease: "power1.inOut",
         scrollTrigger: {
-          trigger: heroRef.current,
-          start: "center top",
+          trigger: heroInnerRef.current,
+          start: "top top",
           end: "bottom top",
           scrub: true,
         }
-      }
-    );
+      });
+    }
 
-    // Refresh ScrollTrigger to prevent layout bugs when returning from other routes
-    setTimeout(() => {
+    // Parallax fade in for About
+    if (aboutRef.current) {
+      gsap.fromTo(aboutRef.current,
+        { yPercent: 30, opacity: 0 },
+        {
+          yPercent: 0,
+          opacity: 1,
+          ease: "power1.inOut",
+          scrollTrigger: {
+            trigger: heroInnerRef.current,
+            start: "center top",
+            end: "bottom top",
+            scrub: true,
+          }
+        }
+      );
+    }
+
+    // Refresh ScrollTrigger after a short delay to account for layout paint
+    const refreshTimer = setTimeout(() => {
       ScrollTrigger.refresh();
-    }, 100);
+    }, 150);
+
+    return () => clearTimeout(refreshTimer);
 
   }, { scope: containerRef });
 
@@ -81,9 +105,12 @@ const Home = () => {
       {/* Transparent Foreground for Hero & About */}
       <div className="relative w-full z-10">
         
-        {/* Hero Section */}
-        <div id="home" className="h-[100dvh] w-full" ref={heroRef}>
-          <HeroSection />
+        {/* Hero Section — wrapper has NO transform applied to it */}
+        <div id="home" className="h-[100dvh] w-full">
+          {/* heroInnerRef wraps the visual content so GSAP transform never touches the layout wrapper */}
+          <div ref={heroInnerRef} className="w-full h-full">
+            <HeroSection />
+          </div>
         </div>
 
         {/* About Section */}

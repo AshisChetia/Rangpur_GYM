@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { EffectCards, Autoplay, Pagination } from 'swiper/modules';
 import gsap from 'gsap';
@@ -12,6 +13,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const AboutPreview = () => {
   const containerRef = useRef();
+  const navigate = useNavigate();
 
   useGSAP(() => {
     // Text elements stagger fade up
@@ -67,7 +69,10 @@ const AboutPreview = () => {
             Welcome to Rangpur Gym in Simaluguri, Ramu Gaon. We provide a reliable fitness experience with state-of-the-art equipment, elite coaching staff, and transparent pricing. Experience a comprehensive wellness destination combining advanced technology, group energy, and professional guidance.
           </p>
 
-          <button className="about-text-element relative group px-10 py-4 bg-transparent text-white font-display text-xs uppercase tracking-widest overflow-hidden border border-white/20 hover:border-white/50 transition-colors cursor-pointer backdrop-blur-sm">
+          <button
+            onClick={() => navigate('/about')}
+            className="about-text-element relative group px-10 py-4 bg-transparent text-white font-display text-xs uppercase tracking-widest overflow-hidden border border-white/20 hover:border-white/50 transition-colors cursor-pointer backdrop-blur-sm"
+          >
             <div className="absolute inset-0 w-0 bg-[var(--color-brand-primary)] group-hover:w-full transition-all duration-300 ease-out -z-10"></div>
             <span className="relative z-10">Discover More</span>
           </button>

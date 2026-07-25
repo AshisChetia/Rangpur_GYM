@@ -41,7 +41,7 @@ const AboutHero = () => {
   return (
     <section
       ref={heroRef}
-      className="relative w-full min-h-[85vh] flex items-center justify-center overflow-hidden"
+      className="relative w-full min-h-[85vh] flex items-center justify-center"
     >
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">

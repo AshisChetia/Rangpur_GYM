@@ -11,9 +11,14 @@
   --font-body: "Rajdhani", sans-serif;
 }
 
+html {
+  overflow-x: hidden;
+}
+
 body {
   font-family: var(--font-body);
   background-color: #000;
   color: #fff;
+  overflow-x: hidden;
 }
 

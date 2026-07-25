@@ -35,63 +35,55 @@ const AccessIcon = ({ className }) => (
 
 const Navbar = () => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const width = 420; // Fixed width matching PC version
+  // Responsive width: cap at 420px, but shrink to 92% of viewport on small screens.
+  // We use state + resize listener instead of a CSS scale() transform.
+  // REASON: applying transform:scale() to a position:fixed element causes Chrome mobile
+  // to miscalculate the `bottom` value, pushing the navbar partially off-screen.
+  const [width, setWidth] = useState(() => Math.min(420, window.innerWidth * 0.92));
   const containerRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 1. ADD OR REMOVE LINKS HERE
-  // type: 'route' for page navigation, 'scroll' for scroll-to-section on home page
+  // Keep width in sync when the viewport resizes (e.g. orientation change)
+  useEffect(() => {
+    const onResize = () => setWidth(Math.min(420, window.innerWidth * 0.92));
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  // Links config
   const links = [
-    { name: 'Home', icon: HomeIcon, target: '/', type: 'route' },
-    { name: 'About', icon: AboutIcon, target: '/about', type: 'route' },
+    { name: 'Home',     icon: HomeIcon,     target: '/',         type: 'route' },
+    { name: 'About',    icon: AboutIcon,    target: '/about',    type: 'route' },
     { name: 'Services', icon: ServicesIcon, target: '/services', type: 'route' },
-    { name: 'Access', icon: AccessIcon, target: '/access', type: 'route' },
+    { name: 'Access',   icon: AccessIcon,   target: '/access',   type: 'route' },
   ];
 
   // Sync active index with the current route
   useEffect(() => {
-    if (location.pathname === '/about') {
-      setActiveIndex(1);
-    } else if (location.pathname === '/services') {
-      setActiveIndex(2);
-    } else if (location.pathname === '/access') {
-      setActiveIndex(3);
-    } else if (location.pathname === '/') {
-      setActiveIndex(0);
-    }
+    if (location.pathname === '/about')         setActiveIndex(1);
+    else if (location.pathname === '/services') setActiveIndex(2);
+    else if (location.pathname === '/access')   setActiveIndex(3);
+    else if (location.pathname === '/')         setActiveIndex(0);
   }, [location.pathname]);
 
+  // --- SVG Geometry ---
+  const H        = 72;
+  const R        = 36;
+  const dipWidth = 52;
+  const dipDepth = 44;
+  const c1X      = 34;
+  const c2X      = 22;
 
+  const minActiveX = R + dipWidth + 2; // 90px
 
-  // --- Adjusted Mathematical Variables for both PC and Mobile (Original Geometry) ---
-  const H = 72;             // Total height of the capsule (Original large size)
-  const R = 36;             // Border radius (H/2 creates a perfect pill)
-  const dipWidth = 52;      // Width of the curve on each side (Widened to perfectly clear the 56px circle)
-  const dipDepth = 44;      // Depth of the cutout
-  
-  // Bezier curve control points strictly engineered to hug the 56px circle without touching it
-  const c1X = 34; 
-  const c2X = 22; 
-
-  // We must guarantee the cutout curve never hits the rounded corners!
-  // The first tab's center (activeX) must be at least R + dipWidth away from the edge.
-  const minActiveX = R + dipWidth + 2; // 36 + 52 + 2 = 90px
-  
-  // Mathematical formula to dynamically calculate the perfect padding for any screen width:
-  // safeZonePadding = (2 * links.length * minActiveX - width) / (2 * (links.length - 1))
   let safeZonePadding = (2 * links.length * minActiveX - width) / (2 * (links.length - 1));
-  
-  // Ensure a minimum padding on very wide screens
-  if (safeZonePadding < 32) safeZonePadding = 32;
+  if (safeZonePadding < 24) safeZonePadding = 24;
 
-  const availableWidth = width - (safeZonePadding * 2);
-  const tabWidth = availableWidth / links.length;
-  
-  // Center point of the currently active tab
-  const activeX = safeZonePadding + (activeIndex * tabWidth) + (tabWidth / 2);
+  const availableWidth = width - safeZonePadding * 2;
+  const tabWidth       = availableWidth / links.length;
+  const activeX        = safeZonePadding + activeIndex * tabWidth + tabWidth / 2;
 
-  // Dynamic SVG Path
   const svgPath = `
     M ${R},0
     L ${activeX - dipWidth},0
@@ -112,91 +104,79 @@ const Navbar = () => {
 
   const handleNavClick = (index, link) => {
     setActiveIndex(index);
-
     if (link.type === 'route') {
-      // Navigate to a different page
       navigate(link.target);
     } else {
-      // Scroll to a section on the home page
       if (location.pathname !== '/') {
-        // If not on home, navigate there first, then scroll after a short delay
         navigate('/');
         setTimeout(() => {
-          const element = document.getElementById(link.target);
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-          }
+          document.getElementById(link.target)?.scrollIntoView({ behavior: 'smooth' });
         }, 100);
       } else {
-        const element = document.getElementById(link.target);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }
+        document.getElementById(link.target)?.scrollIntoView({ behavior: 'smooth' });
       }
     }
   };
 
   return (
-    <div 
-      className="fixed bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 w-[420px] h-[72px] z-50 drop-shadow-2xl scale-[0.85] sm:scale-100 origin-bottom"
+    // NO scale() transform on this element — that is what broke position:fixed on mobile Chrome.
+    // Width is now a real pixel value calculated from window.innerWidth.
+    <div
+      style={{ width: `${width}px` }}
+      className="fixed bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 h-[72px] z-50 drop-shadow-2xl"
     >
       <div ref={containerRef} className="relative w-full h-full">
-        
+
         {/* Dynamic SVG Background */}
-        <svg 
-          className="absolute inset-0 w-full h-full pointer-events-none" 
+        <svg
+          className="absolute inset-0 w-full h-full pointer-events-none"
           viewBox={`0 0 ${width} ${H}`}
           preserveAspectRatio="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <path 
-            d={svgPath} 
-            fill="var(--color-brand-secondary)" 
-            className="transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]" 
+          <path
+            d={svgPath}
+            fill="var(--color-brand-secondary)"
+            className="transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
           />
         </svg>
 
-        {/* Floating Active Circle (Restored to original size) */}
+        {/* Floating Active Circle */}
         <div
           className="absolute top-[-24px] w-[56px] h-[56px] bg-[var(--color-brand-primary)] rounded-full shadow-lg flex items-center justify-center transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] z-20"
-          style={{ 
-            left: `${activeX - 28}px` 
-          }}
+          style={{ left: `${activeX - 28}px` }}
         >
           <ActiveIcon className="text-white drop-shadow-md" />
         </div>
 
-        {/* Navigation Links container */}
-        <ul 
+        {/* Navigation Links */}
+        <ul
           className="relative flex w-full h-full z-10"
-          style={{ padding: `0 ${safeZonePadding}px` }} // Applies the safe zone padding dynamically
+          style={{ padding: `0 ${safeZonePadding}px` }}
         >
           {links.map((link, index) => {
             const isActive = activeIndex === index;
             const Icon = link.icon;
-
             return (
               <li key={index} className="flex-1 h-full">
                 <button
                   onClick={() => handleNavClick(index, link)}
                   className="w-full h-full flex flex-col items-center justify-center cursor-pointer bg-transparent border-none outline-none group"
                 >
-                  {/* Inactive Icon */}
                   <span
                     className={`transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${
-                      isActive 
-                        ? 'opacity-0 translate-y-4 scale-50' 
+                      isActive
+                        ? 'opacity-0 translate-y-4 scale-50'
                         : 'opacity-100 translate-y-0 text-[var(--color-brand-smooth)] group-hover:text-white'
                     }`}
                   >
                     <Icon className="w-6 h-6" />
                   </span>
 
-                  {/* Text Label */}
                   <span
                     className={`absolute bottom-3 font-semibold text-[10px] uppercase tracking-wider transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${
-                      isActive 
-                        ? 'opacity-100 translate-y-0 text-white' 
+                      isActive
+                        ? 'opacity-100 translate-y-0 text-white'
                         : 'opacity-0 translate-y-3 text-transparent'
                     }`}
                   >

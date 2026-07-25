@@ -1,13 +1,21 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import AccessMembership from './AccessMembership';
+import AccessContact from './AccessContact';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const Access = () => {
   const containerRef = useRef();
+
+  // Kill stale ScrollTrigger instances on unmount
+  useEffect(() => {
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+    };
+  }, []);
 
   // Add a small hero entrance for the Access page
   useGSAP(() => {
@@ -46,8 +54,11 @@ const Access = () => {
         </p>
       </div>
 
-      {/* Reusing the highly functional Membership component */}
+      {/* Membership & pricing */}
       <AccessMembership />
+
+      {/* Contact & social links */}
+      <AccessContact />
       
     </div>
   );
