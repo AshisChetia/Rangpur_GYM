@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 // --- Icons ---
 const HomeIcon = ({ className }) => (
@@ -34,26 +35,34 @@ const AccessIcon = ({ className }) => (
 
 const Navbar = () => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [width, setWidth] = useState(400); 
+  const width = 420; // Fixed width matching PC version
   const containerRef = useRef(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // 1. ADD OR REMOVE LINKS HERE
-  // The layout will automatically recalculate to fit any number of items.
+  // type: 'route' for page navigation, 'scroll' for scroll-to-section on home page
   const links = [
-    { name: 'Home', icon: HomeIcon, target: 'home' },
-    { name: 'About', icon: AboutIcon, target: 'about' },
-    { name: 'Services', icon: ServicesIcon, target: 'services' },
-    { name: 'Access', icon: AccessIcon, target: 'access' },
+    { name: 'Home', icon: HomeIcon, target: '/', type: 'route' },
+    { name: 'About', icon: AboutIcon, target: '/about', type: 'route' },
+    { name: 'Services', icon: ServicesIcon, target: '/services', type: 'route' },
+    { name: 'Access', icon: AccessIcon, target: '/access', type: 'route' },
   ];
 
+  // Sync active index with the current route
   useEffect(() => {
-    if (!containerRef.current) return;
-    const updateWidth = () => setWidth(containerRef.current.offsetWidth);
-    
-    updateWidth(); 
-    window.addEventListener('resize', updateWidth);
-    return () => window.removeEventListener('resize', updateWidth);
-  }, []);
+    if (location.pathname === '/about') {
+      setActiveIndex(1);
+    } else if (location.pathname === '/services') {
+      setActiveIndex(2);
+    } else if (location.pathname === '/access') {
+      setActiveIndex(3);
+    } else if (location.pathname === '/') {
+      setActiveIndex(0);
+    }
+  }, [location.pathname]);
+
+
 
   // --- Adjusted Mathematical Variables for both PC and Mobile (Original Geometry) ---
   const H = 72;             // Total height of the capsule (Original large size)
@@ -101,22 +110,43 @@ const Navbar = () => {
 
   const ActiveIcon = links[activeIndex].icon;
 
-  const handleNavClick = (index, targetId) => {
+  const handleNavClick = (index, link) => {
     setActiveIndex(index);
-    const element = document.getElementById(targetId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+
+    if (link.type === 'route') {
+      // Navigate to a different page
+      navigate(link.target);
+    } else {
+      // Scroll to a section on the home page
+      if (location.pathname !== '/') {
+        // If not on home, navigate there first, then scroll after a short delay
+        navigate('/');
+        setTimeout(() => {
+          const element = document.getElementById(link.target);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 100);
+      } else {
+        const element = document.getElementById(link.target);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
     }
   };
 
   return (
-    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-[95%] max-w-[420px] h-[72px] z-50 drop-shadow-2xl">
+    <div 
+      className="fixed bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 w-[420px] h-[72px] z-50 drop-shadow-2xl scale-[0.85] sm:scale-100 origin-bottom"
+    >
       <div ref={containerRef} className="relative w-full h-full">
         
         {/* Dynamic SVG Background */}
         <svg 
           className="absolute inset-0 w-full h-full pointer-events-none" 
           viewBox={`0 0 ${width} ${H}`}
+          preserveAspectRatio="none"
           xmlns="http://www.w3.org/2000/svg"
         >
           <path 
@@ -148,10 +178,10 @@ const Navbar = () => {
             return (
               <li key={index} className="flex-1 h-full">
                 <button
-                  onClick={() => handleNavClick(index, link.target)}
+                  onClick={() => handleNavClick(index, link)}
                   className="w-full h-full flex flex-col items-center justify-center cursor-pointer bg-transparent border-none outline-none group"
                 >
-                  {/* Inactive Icon (Perfectly aligned in flex container) */}
+                  {/* Inactive Icon */}
                   <span
                     className={`transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${
                       isActive 
@@ -159,12 +189,12 @@ const Navbar = () => {
                         : 'opacity-100 translate-y-0 text-[var(--color-brand-smooth)] group-hover:text-white'
                     }`}
                   >
-                    <Icon className="w-5 h-5 md:w-6 md:h-6" />
+                    <Icon className="w-6 h-6" />
                   </span>
 
-                  {/* Text Label (Hidden on mobile, perfectly small on desktop) */}
+                  {/* Text Label */}
                   <span
-                    className={`hidden md:block absolute bottom-3 font-semibold text-[10px] uppercase tracking-wider transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+                    className={`absolute bottom-3 font-semibold text-[10px] uppercase tracking-wider transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${
                       isActive 
                         ? 'opacity-100 translate-y-0 text-white' 
                         : 'opacity-0 translate-y-3 text-transparent'

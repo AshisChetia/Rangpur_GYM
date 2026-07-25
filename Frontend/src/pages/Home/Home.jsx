@@ -16,6 +16,10 @@ const Home = () => {
   const containerRef = useRef();
 
   useGSAP(() => {
+    // Force scroll to top immediately before GSAP calculates anything
+    window.scrollTo(0, 0);
+    ScrollTrigger.clearScrollMemory("manual");
+
     // Parallax fade for Hero
     gsap.to(heroRef.current, {
       yPercent: -50,
@@ -37,13 +41,18 @@ const Home = () => {
         opacity: 1,
         ease: "power1.inOut",
         scrollTrigger: {
-          trigger: heroRef.current, // Start when Hero starts scrolling up
+          trigger: heroRef.current,
           start: "center top",
           end: "bottom top",
           scrub: true,
         }
       }
     );
+
+    // Refresh ScrollTrigger to prevent layout bugs when returning from other routes
+    setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 100);
 
   }, { scope: containerRef });
 
@@ -56,7 +65,7 @@ const Home = () => {
         It is visible during Hero and About (which have transparent backgrounds).
         When ServicesSection scrolls up (which has a solid background), it will cover this video naturally!
       */}
-      <div className="fixed top-0 left-0 w-full h-screen z-0">
+      <div className="fixed top-0 left-0 w-full h-[100dvh] z-0">
         <video
           className="w-full h-full object-cover opacity-60"
           src={bgVideo}
@@ -73,12 +82,12 @@ const Home = () => {
       <div className="relative w-full z-10">
         
         {/* Hero Section */}
-        <div id="home" className="h-screen w-full" ref={heroRef}>
+        <div id="home" className="h-[100dvh] w-full" ref={heroRef}>
           <HeroSection />
         </div>
 
         {/* About Section */}
-        <div id="about" className="h-screen w-full" ref={aboutRef}>
+        <div id="about" className="h-[100dvh] w-full" ref={aboutRef}>
           <AboutPreview />
         </div>
 
