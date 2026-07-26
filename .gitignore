@@ -1,0 +1,7 @@
+# Client / sensitive data files — do NOT commit
+client-details.text
+*.text
+
+# OS files
+.DS_Store
+Thumbs.db
