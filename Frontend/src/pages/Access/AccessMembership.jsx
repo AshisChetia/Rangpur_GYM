@@ -141,7 +141,7 @@ const AccessMembership = () => {
 
           {/* Right: Hours */}
           <div className="w-full lg:w-1/2">
-            <div className="membership-element p-8 rounded-2xl border border-white/10 bg-white/[0.02]">
+            <div id="schedule" className="membership-element p-8 rounded-2xl border border-white/10 bg-white/[0.02]">
               <h3 className="font-display text-base font-bold text-white uppercase tracking-widest mb-8 flex items-center gap-3">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand-smooth)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />

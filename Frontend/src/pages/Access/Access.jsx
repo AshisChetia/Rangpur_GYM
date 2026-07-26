@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
@@ -9,6 +10,20 @@ gsap.registerPlugin(ScrollTrigger);
 
 const Access = () => {
   const containerRef = useRef();
+  const location = useLocation();
+
+  // Scroll to hash anchor when navigating from another page (e.g. /access#contact)
+  useEffect(() => {
+    if (!location.hash) return;
+    // Small delay to allow the page to fully render before scrolling
+    const timer = setTimeout(() => {
+      const el = document.querySelector(location.hash);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [location.hash]);
 
   // Kill stale ScrollTrigger instances on unmount
   useEffect(() => {

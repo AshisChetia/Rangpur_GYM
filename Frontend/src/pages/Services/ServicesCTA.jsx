@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
@@ -54,12 +55,18 @@ const ServicesCTA = () => {
         </p>
 
         <div className="services-cta-element flex flex-col sm:flex-row gap-4 justify-center">
-          <button className="px-10 py-4 bg-[var(--color-brand-primary)] text-white font-display text-xs uppercase tracking-[0.2em] hover:scale-105 transition-transform cursor-pointer shadow-[0_0_30px_var(--color-brand-primary)] border border-[var(--color-brand-smooth)]/30 rounded-lg">
+          <Link
+            to="/access#contact"
+            className="px-10 py-4 bg-[var(--color-brand-primary)] text-white font-display text-xs uppercase tracking-[0.2em] hover:scale-105 transition-transform cursor-pointer shadow-[0_0_30px_var(--color-brand-primary)] border border-[var(--color-brand-smooth)]/30 rounded-lg no-underline text-center"
+          >
             Schedule Trial Session
-          </button>
-          <button className="px-10 py-4 bg-transparent border border-white/20 text-white font-display text-xs uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-all cursor-pointer rounded-lg">
+          </Link>
+          <Link
+            to="/access#schedule"
+            className="px-10 py-4 bg-transparent border border-white/20 text-white font-display text-xs uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-all cursor-pointer rounded-lg no-underline text-center"
+          >
             View Class Schedule
-          </button>
+          </Link>
         </div>
       </div>
     </section>

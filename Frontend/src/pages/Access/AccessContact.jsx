@@ -1,18 +1,13 @@
-import React, { useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useGSAP } from '@gsap/react';
-
-gsap.registerPlugin(ScrollTrigger);
+import React, { useRef, useEffect } from 'react';
 
 // ─── Social link data ──────────────────────────────────────────────────────────
-const PHONE   = '+919706820603';
-const WA_MSG  = encodeURIComponent("Hi! I found you on your website and I'd like to know more about Rangpur Gym.");
+const PHONE  = '+919706820603';
+const WA_MSG = encodeURIComponent("Hi! I found you on your website and I'd like to know more about Rangpur Gym.");
 const SOCIALS = [
   {
     id: 'whatsapp',
     label: 'WhatsApp',
-    handle: '+91 97068 20603',
+    handle: 'Message Us',
     description: 'Chat with us instantly',
     href: `https://wa.me/${PHONE}?text=${WA_MSG}`,
     color: '#25D366',
@@ -52,34 +47,58 @@ const SOCIALS = [
 
 // ─── Component ─────────────────────────────────────────────────────────────────
 const AccessContact = () => {
-  const sectionRef = useRef();
+  const sectionRef = useRef(null);
 
-  useGSAP(() => {
-    gsap.from('.contact-card', {
-      y: 50,
-      opacity: 0,
-      duration: 0.8,
-      stagger: 0.15,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: 'top 80%',
-      },
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    // Grab all animatable elements
+    const heading = section.querySelector('.contact-heading');
+    const cards   = section.querySelectorAll('.contact-card');
+
+    // Set initial hidden state via inline style (safe — no GSAP involved)
+    if (heading) {
+      heading.style.opacity = '0';
+      heading.style.transform = 'translateY(30px)';
+      heading.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+    }
+    cards.forEach((card, i) => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(50px)';
+      card.style.transition = `opacity 0.7s ease ${i * 0.12}s, transform 0.7s ease ${i * 0.12}s`;
     });
-    gsap.from('.contact-heading', {
-      y: 30,
-      opacity: 0,
-      duration: 0.9,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: 'top 85%',
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+
+          // Animate heading
+          if (heading) {
+            heading.style.opacity = '1';
+            heading.style.transform = 'translateY(0)';
+          }
+          // Animate cards
+          cards.forEach((card) => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+          });
+
+          // Stop observing after first trigger
+          observer.unobserve(section);
+        });
       },
-    });
-  }, { scope: sectionRef });
+      { threshold: 0.1 }
+    );
+
+    observer.observe(section);
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <section ref={sectionRef} className="relative w-full py-24 md:py-36 px-6 md:px-12 bg-[#050505]">
+    <section id="contact" ref={sectionRef} className="relative w-full py-24 md:py-36 px-6 md:px-12 bg-[#050505]">
       {/* Ambient glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-[var(--color-brand-primary)]/15 blur-[160px] pointer-events-none" />
 
@@ -113,7 +132,7 @@ const AccessContact = () => {
               href={s.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="contact-card group relative flex flex-col items-center text-center p-8 md:p-10 rounded-2xl border border-white/10 bg-white/[0.02] hover:border-white/20 transition-all duration-500 overflow-hidden cursor-pointer no-underline"
+              className="contact-card group relative flex flex-col items-center text-center p-8 md:p-10 rounded-2xl border border-white/10 bg-white/[0.02] hover:border-white/20 transition-colors duration-500 overflow-hidden cursor-pointer no-underline"
             >
               {/* Hover glow */}
               <div
@@ -141,7 +160,10 @@ const AccessContact = () => {
               </p>
 
               {/* Arrow indicator */}
-              <div className="mt-6 flex items-center gap-2 font-display text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0" style={{ color: s.color }}>
+              <div
+                className="mt-6 flex items-center gap-2 font-display text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0"
+                style={{ color: s.color }}
+              >
                 Open
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M7 17L17 7M17 7H7M17 7v10"/>
@@ -159,9 +181,12 @@ const AccessContact = () => {
           </div>
           <a
             href={`tel:${PHONE}`}
-            className="flex-shrink-0 px-8 py-3 border border-white/20 text-white font-display text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 rounded-none cursor-pointer no-underline"
+            className="flex-shrink-0 flex items-center gap-3 px-8 py-3 border border-white/20 text-white font-display text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 rounded-none cursor-pointer no-underline"
           >
-            +91 97068 20603
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.1 10.8a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+            </svg>
+            Call Now
           </a>
         </div>
 

@@ -55,13 +55,13 @@ const AboutCTA = () => {
           support your journey toward a healthier, stronger you.
         </p>
 
-        <div className="cta-element flex flex-col sm:flex-row gap-4 justify-center">
-          <button className="px-10 py-4 bg-[var(--color-brand-primary)] text-white font-display text-xs uppercase tracking-[0.2em] hover:scale-105 transition-transform cursor-pointer shadow-[0_0_30px_var(--color-brand-primary)] border border-[var(--color-brand-smooth)]/30 rounded-lg">
-            Join Now — ₹1,500/mo
-          </button>
-          <button className="px-10 py-4 bg-transparent border border-white/20 text-white font-display text-xs uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-all cursor-pointer rounded-lg">
-            Book A Free Trial
-          </button>
+        <div className="cta-element flex flex-col items-center gap-3">
+          <p className="font-display text-lg md:text-2xl font-black italic text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-brand-smooth)] to-white tracking-wide">
+            "Your only limit is the one you set yourself."
+          </p>
+          <p className="font-body text-sm text-slate-500 tracking-widest uppercase">
+            — Walk in. Work hard. Walk out stronger.
+          </p>
         </div>
 
         {/* Trust badges */}
@@ -76,7 +76,7 @@ const AboutCTA = () => {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" />
             </svg>
-            <span className="font-body text-xs tracking-widest uppercase">10+ Member Reviews</span>
+            <span className="font-body text-xs tracking-widest uppercase">10 Member Reviews</span>
           </div>
           <div className="flex items-center gap-2">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

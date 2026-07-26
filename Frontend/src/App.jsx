@@ -6,6 +6,7 @@ import About from "./pages/About/About"
 import Services from "./pages/Services/Services"
 import Access from "./pages/Access/Access"
 import Footer from "./components/UI/Footer"
+import DisclaimerModal from "./components/DisclaimerModal/DisclaimerModal"
 
 // Scroll to top on route change
 function ScrollToTop() {
@@ -22,6 +23,7 @@ function ScrollToTop() {
 function App() {
   return (
     <>
+      <DisclaimerModal />
       <ScrollToTop />
       <Navbar />
       <Routes>
