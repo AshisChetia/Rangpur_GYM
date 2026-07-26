@@ -88,6 +88,7 @@ const ServicesOverview = () => {
       scrollTrigger: {
         trigger: sectionRef.current,
         start: 'top 80%',
+        once: true,
       },
     });
 
@@ -106,6 +107,7 @@ const ServicesOverview = () => {
           scrollTrigger: {
             trigger: card,
             start: 'top 90%',
+            once: true,
           },
         }
       );

@@ -33,6 +33,7 @@ const AccessMembership = () => {
           scrollTrigger: {
             trigger: el,
             start: 'top 92%',
+            once: true,
           },
         }
       );
@@ -52,6 +53,7 @@ const AccessMembership = () => {
           scrollTrigger: {
             trigger: row,
             start: 'top 95%',
+            once: true,
           },
         }
       );

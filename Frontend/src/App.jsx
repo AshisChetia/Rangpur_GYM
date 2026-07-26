@@ -1,5 +1,7 @@
 import { Routes, Route, useLocation } from "react-router-dom"
-import { useLayoutEffect } from "react"
+import { useLayoutEffect, useEffect } from "react"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
 import Navbar from "./components/UI/Navbar"
 import Home from "./pages/Home/Home"
 import About from "./pages/About/About"
@@ -20,7 +22,29 @@ function ScrollToTop() {
   return null;
 }
 
+gsap.registerPlugin(ScrollTrigger);
+
 function App() {
+  // ── Global ScrollTrigger refresh after fonts & assets load ──────────────
+  // In production, Google Fonts load asynchronously AFTER GSAP initialises.
+  // This causes a layout shift that makes ScrollTrigger's position
+  // calculations stale, so triggers never fire and elements stay invisible.
+  // Refreshing after fonts are ready fixes this for all pages at once.
+  useEffect(() => {
+    // After custom fonts finish loading
+    document.fonts.ready.then(() => {
+      ScrollTrigger.refresh();
+    });
+    // Fallback: also refresh on full window load (images, iframes, etc.)
+    const onLoad = () => ScrollTrigger.refresh();
+    if (document.readyState === 'complete') {
+      ScrollTrigger.refresh();
+    } else {
+      window.addEventListener('load', onLoad);
+      return () => window.removeEventListener('load', onLoad);
+    }
+  }, []);
+
   return (
     <>
       <DisclaimerModal />

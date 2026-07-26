@@ -80,6 +80,7 @@ const AboutValues = () => {
       scrollTrigger: {
         trigger: sectionRef.current,
         start: 'top 85%',
+        once: true,
       },
     });
 
@@ -97,6 +98,7 @@ const AboutValues = () => {
           scrollTrigger: {
             trigger: card,
             start: 'top 92%',
+            once: true,
           },
         }
       );

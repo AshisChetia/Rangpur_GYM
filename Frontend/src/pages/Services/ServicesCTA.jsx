@@ -23,6 +23,7 @@ const ServicesCTA = () => {
           scrollTrigger: {
             trigger: el,
             start: 'top 90%',
+            once: true,
           },
         }
       );

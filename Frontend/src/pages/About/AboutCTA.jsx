@@ -22,6 +22,7 @@ const AboutCTA = () => {
           scrollTrigger: {
             trigger: el,
             start: 'top 92%',
+            once: true,
           },
         }
       );
