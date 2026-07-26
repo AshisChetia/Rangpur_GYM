@@ -1,9 +1,4 @@
-import React, { useRef, useState } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useGSAP } from '@gsap/react';
-
-gsap.registerPlugin(ScrollTrigger);
+import React, { useRef, useEffect, useState } from 'react';
 
 const servicesData = [
   {
@@ -75,50 +70,47 @@ const servicesData = [
 ];
 
 const ServicesOverview = () => {
-  const sectionRef = useRef();
+  const sectionRef = useRef(null);
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
-  useGSAP(() => {
-    // Reveal header
-    gsap.from('.service-header', {
-      y: 50,
-      opacity: 0,
-      duration: 1,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: 'top 80%',
-        once: true,
-      },
-    });
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
 
-    // Reveal each card independently
-    const cards = gsap.utils.toArray('.service-card-wrapper');
+    const header = section.querySelector('.service-header');
+    const cards  = section.querySelectorAll('.service-card-wrapper');
+
+    if (header) {
+      header.style.opacity = '0';
+      header.style.transform = 'translateY(40px)';
+      header.style.transition = 'opacity 0.8s ease 0s, transform 0.8s ease 0s';
+    }
     cards.forEach((card, i) => {
-      gsap.fromTo(card,
-        { y: 80, opacity: 0, rotateX: 10 },
-        {
-          y: 0,
-          opacity: 1,
-          rotateX: 0,
-          duration: 0.8,
-          delay: i * 0.1,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: card,
-            start: 'top 90%',
-            once: true,
-          },
-        }
-      );
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(60px)';
+      card.style.transition = `opacity 0.7s ease ${i * 0.08}s, transform 0.7s ease ${i * 0.08}s`;
     });
 
-  }, { scope: sectionRef });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          if (header) { header.style.opacity = '1'; header.style.transform = 'translateY(0)'; }
+          cards.forEach((card) => { card.style.opacity = '1'; card.style.transform = 'translateY(0)'; });
+          observer.unobserve(section);
+        });
+      },
+      { threshold: 0.05 }
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section ref={sectionRef} className="relative w-full py-16 md:py-24 px-6 md:px-12 bg-[#050505] overflow-hidden">
       
-      {/* Background tracking gradient (Reduced intensity) */}
+      {/* Background tracking gradient */}
       <div 
         className="absolute w-[600px] h-[600px] rounded-full blur-[150px] bg-[var(--color-brand-primary)]/5 pointer-events-none transition-all duration-1000 ease-out hidden md:block"
         style={{
@@ -173,7 +165,7 @@ const ServicesOverview = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/90 to-[#050505]/60 md:via-[#050505]/80 md:to-[#050505]/40 md:group-hover:via-[#050505]/60 transition-all duration-700"></div>
               </div>
 
-              {/* Glowing Corner Accents (Futuristic UI) */}
+              {/* Corner Accents */}
               <div className="absolute top-4 left-4 w-4 h-4 border-t-2 border-l-2 border-white/20 group-hover:border-[var(--color-brand-smooth)] transition-colors duration-500"></div>
               <div className="absolute top-4 right-4 w-4 h-4 border-t-2 border-r-2 border-white/20 group-hover:border-[var(--color-brand-smooth)] transition-colors duration-500"></div>
               <div className="absolute bottom-4 left-4 w-4 h-4 border-b-2 border-l-2 border-white/20 group-hover:border-[var(--color-brand-smooth)] transition-colors duration-500"></div>

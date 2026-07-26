@@ -1,9 +1,4 @@
-import React, { useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useGSAP } from '@gsap/react';
-
-gsap.registerPlugin(ScrollTrigger);
+import React, { useRef, useEffect } from 'react';
 
 const values = [
   {
@@ -69,41 +64,41 @@ const values = [
 ];
 
 const AboutValues = () => {
-  const sectionRef = useRef();
+  const sectionRef = useRef(null);
 
-  useGSAP(() => {
-    gsap.from('.values-header', {
-      y: 50,
-      opacity: 0,
-      duration: 1,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: 'top 85%',
-        once: true,
-      },
-    });
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
 
-    // Per-element ScrollTrigger — each card triggers its own animation when it enters the viewport
-    const cards = gsap.utils.toArray('.value-card');
+    const header = section.querySelector('.values-header');
+    const cards  = section.querySelectorAll('.value-card');
+
+    if (header) {
+      header.style.opacity = '0';
+      header.style.transform = 'translateY(40px)';
+      header.style.transition = 'opacity 0.8s ease 0s, transform 0.8s ease 0s';
+    }
     cards.forEach((card, i) => {
-      gsap.fromTo(card,
-        { y: 60, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          delay: i * 0.1,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: card,
-            start: 'top 92%',
-            once: true,
-          },
-        }
-      );
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(50px)';
+      card.style.transition = `opacity 0.7s ease ${i * 0.08}s, transform 0.7s ease ${i * 0.08}s`;
     });
-  }, { scope: sectionRef });
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          if (header) { header.style.opacity = '1'; header.style.transform = 'translateY(0)'; }
+          cards.forEach((card) => { card.style.opacity = '1'; card.style.transform = 'translateY(0)'; });
+          observer.unobserve(section);
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section ref={sectionRef} className="relative w-full py-24 md:py-36 px-6 md:px-12 bg-[#0a0a12] overflow-hidden">
@@ -134,7 +129,7 @@ const AboutValues = () => {
         </div>
 
         {/* Grid */}
-        <div className="values-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {values.map((value, index) => (
             <div
               key={index}

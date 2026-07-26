@@ -1,47 +1,39 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 
-gsap.registerPlugin(ScrollTrigger);
-
+// Parallax on image uses GSAP (no ScrollTrigger) — safe for production
 const AboutStory = () => {
-  const sectionRef = useRef();
+  const sectionRef = useRef(null);
 
-  useGSAP(() => {
-    // Per-element ScrollTrigger for story elements
-    const elements = gsap.utils.toArray('.story-element');
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const elements = section.querySelectorAll('.story-element');
     elements.forEach((el, i) => {
-      gsap.fromTo(el,
-        { y: 60, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 1,
-          delay: i * 0.15,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: el,
-            start: 'top 92%',
-            once: true,
-          },
-        }
-      );
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(50px)';
+      el.style.transition = `opacity 0.8s ease ${i * 0.12}s, transform 0.8s ease ${i * 0.12}s`;
     });
 
-    // Parallax on the image
-    gsap.to('.story-image', {
-      yPercent: -10,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: 'top bottom',
-        end: 'bottom top',
-        scrub: true,
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          elements.forEach((el) => {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+          });
+          observer.unobserve(section);
+        });
       },
-    });
+      { threshold: 0.1 }
+    );
 
-  }, { scope: sectionRef });
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section ref={sectionRef} className="relative w-full py-24 md:py-36 px-6 md:px-12 bg-[#050505] overflow-hidden">
@@ -53,10 +45,9 @@ const AboutStory = () => {
             <img
               src="/about%20image%202.webp"
               alt="Inside Rangpur Gym"
-              className="story-image w-full h-[120%] object-cover transition-transform duration-700 group-hover:scale-105"
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent"></div>
-            {/* Decorative border glow */}
             <div className="absolute inset-0 rounded-2xl border border-white/10 group-hover:border-[var(--color-brand-smooth)]/30 transition-colors duration-500"></div>
             {/* Badge */}
             <div className="absolute bottom-6 left-6 right-6 flex items-center gap-3">

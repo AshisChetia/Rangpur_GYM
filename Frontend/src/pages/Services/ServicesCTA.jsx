@@ -1,34 +1,34 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useGSAP } from '@gsap/react';
-
-gsap.registerPlugin(ScrollTrigger);
 
 const ServicesCTA = () => {
-  const sectionRef = useRef();
+  const sectionRef = useRef(null);
 
-  useGSAP(() => {
-    const elements = gsap.utils.toArray('.services-cta-element');
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const elements = section.querySelectorAll('.services-cta-element');
     elements.forEach((el, i) => {
-      gsap.fromTo(el,
-        { y: 50, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 1,
-          delay: i * 0.12,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: el,
-            start: 'top 90%',
-            once: true,
-          },
-        }
-      );
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(40px)';
+      el.style.transition = `opacity 0.8s ease ${i * 0.12}s, transform 0.8s ease ${i * 0.12}s`;
     });
-  }, { scope: sectionRef });
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          elements.forEach((el) => { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; });
+          observer.unobserve(section);
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section ref={sectionRef} className="relative w-full py-24 md:py-36 px-6 md:px-12 bg-[#050505] overflow-hidden">
