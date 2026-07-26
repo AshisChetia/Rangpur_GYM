@@ -2,6 +2,6 @@
 client-details.text
 *.text
 
-# OS files
+# OS Files
 .DS_Store
 Thumbs.db
