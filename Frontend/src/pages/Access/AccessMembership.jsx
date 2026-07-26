@@ -1,9 +1,4 @@
-import React, { useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useGSAP } from '@gsap/react';
-
-gsap.registerPlugin(ScrollTrigger);
+import React, { useRef, useEffect } from 'react';
 
 const hours = [
   { day: 'Monday', time: '5:00 AM – 8:00 PM', open: true },
@@ -16,49 +11,53 @@ const hours = [
 ];
 
 const AccessMembership = () => {
-  const sectionRef = useRef();
+  const sectionRef = useRef(null);
 
-  useGSAP(() => {
-    // Per-element ScrollTrigger for membership elements
-    const elements = gsap.utils.toArray('.membership-element');
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const elements = section.querySelectorAll('.membership-element');
+    const rows = section.querySelectorAll('.hours-row');
+
+    // Initialize styling for fade-in elements
     elements.forEach((el, i) => {
-      gsap.fromTo(el,
-        { y: 50, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          delay: i * 0.1,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: el,
-            start: 'top 92%',
-            once: true,
-          },
-        }
-      );
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(40px)';
+      el.style.transition = `opacity 0.8s ease ${i * 0.1}s, transform 0.8s ease ${i * 0.1}s`;
     });
 
-    // Per-element ScrollTrigger for hours rows
-    const rows = gsap.utils.toArray('.hours-row');
+    // Initialize styling for hours rows
     rows.forEach((row, i) => {
-      gsap.fromTo(row,
-        { x: -30, opacity: 0 },
-        {
-          x: 0,
-          opacity: 1,
-          duration: 0.5,
-          delay: i * 0.05,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: row,
-            start: 'top 95%',
-            once: true,
-          },
-        }
-      );
+      row.style.opacity = '0';
+      row.style.transform = 'translateX(-20px)';
+      row.style.transition = `opacity 0.5s ease ${i * 0.05}s, transform 0.5s ease ${i * 0.05}s`;
     });
-  }, { scope: sectionRef });
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          
+          elements.forEach((el) => {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+          });
+          
+          rows.forEach((row) => {
+            row.style.opacity = '1';
+            row.style.transform = 'translateX(0)';
+          });
+
+          observer.unobserve(section);
+        });
+      },
+      { threshold: 0.05 }
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section ref={sectionRef} className="relative w-full py-24 md:py-36 px-6 md:px-12 bg-[#0a0a12] overflow-hidden">
