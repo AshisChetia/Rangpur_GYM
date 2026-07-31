@@ -1,50 +1,55 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { EffectCards, Autoplay, Pagination } from 'swiper/modules';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useGSAP } from '@gsap/react';
 import 'swiper/css';
 import 'swiper/css/effect-cards';
 import 'swiper/css/pagination';
 
-gsap.registerPlugin(ScrollTrigger);
-
 const AboutPreview = () => {
-  const containerRef = useRef();
+  const containerRef = useRef(null);
   const navigate = useNavigate();
 
-  useGSAP(() => {
-    // Text elements stagger fade up
-    gsap.from(".about-text-element", {
-      y: 50,
-      opacity: 0,
-      duration: 1,
-      stagger: 0.15,
-      ease: "power3.out",
-      scrollTrigger: {
-        trigger: containerRef.current,
-        start: "top 60%", // Triggers when the top of the container is 60% down the screen
-        toggleActions: "play none none reverse",
-      }
+  useEffect(() => {
+    const section = containerRef.current;
+    if (!section) return;
+
+    const textElements = section.querySelectorAll('.about-text-element');
+    const visualElement = section.querySelector('.about-visual-element');
+
+    textElements.forEach((el, i) => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(40px)';
+      el.style.transition = `opacity 0.8s ease ${i * 0.15}s, transform 0.8s ease ${i * 0.15}s`;
     });
 
-    // Image/Swiper element fade in and slight slide/scale
-    gsap.from(".about-visual-element", {
-      x: 50,
-      scale: 0.95,
-      opacity: 0,
-      duration: 1.2,
-      ease: "power2.out",
-      scrollTrigger: {
-        trigger: containerRef.current,
-        start: "top 60%",
-        toggleActions: "play none none reverse",
-      }
-    });
+    if (visualElement) {
+      visualElement.style.opacity = '0';
+      visualElement.style.transform = 'translateX(30px) scale(0.95)';
+      visualElement.style.transition = 'opacity 0.9s ease 0.3s, transform 0.9s ease 0.3s';
+    }
 
-  }, { scope: containerRef });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          textElements.forEach((el) => {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+          });
+          if (visualElement) {
+            visualElement.style.opacity = '1';
+            visualElement.style.transform = 'translateX(0) scale(1)';
+          }
+          observer.unobserve(section);
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section ref={containerRef} className="relative w-full h-full flex items-center justify-center bg-transparent">

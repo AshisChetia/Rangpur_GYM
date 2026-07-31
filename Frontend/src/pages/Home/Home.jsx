@@ -12,7 +12,6 @@ gsap.registerPlugin(ScrollTrigger);
 
 const Home = () => {
   const heroInnerRef = useRef();   // Animates the INNER content, NOT the wrapper div
-  const aboutRef = useRef();
   const containerRef = useRef();
 
   // ─── FIX 1: Kill ALL stale ScrollTrigger instances on unmount ──────────────
@@ -51,24 +50,6 @@ const Home = () => {
           scrub: true,
         }
       });
-    }
-
-    // Parallax fade in for About
-    if (aboutRef.current) {
-      gsap.fromTo(aboutRef.current,
-        { yPercent: 30, opacity: 0 },
-        {
-          yPercent: 0,
-          opacity: 1,
-          ease: "power1.inOut",
-          scrollTrigger: {
-            trigger: heroInnerRef.current,
-            start: "center top",
-            end: "bottom top",
-            scrub: true,
-          }
-        }
-      );
     }
 
     // Refresh ScrollTrigger after a short delay to account for layout paint
@@ -114,7 +95,7 @@ const Home = () => {
         </div>
 
         {/* About Section */}
-        <div id="about" className="h-[100dvh] w-full" ref={aboutRef}>
+        <div id="about" className="h-[100dvh] w-full">
           <AboutPreview />
         </div>
 
